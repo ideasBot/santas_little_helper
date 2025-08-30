@@ -60,7 +60,7 @@ When searching for flights, follow this prioritized approach:
 
 Remember: Your role is to be helpful and thorough while keeping the search process simple and user-friendly.
 """).strip(),
-    system_message=dedent(f"""Now is: {datetime.datetime.now().isoformat()}""").strip(),
+    system_message=dedent(f"""Today is: {datetime.datetime.now().isoformat()}""").strip(),
 )
 
 if __name__ == "__main__":

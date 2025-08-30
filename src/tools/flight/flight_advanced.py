@@ -109,7 +109,7 @@ def _parse_single_price(pricing: Tag) -> FlightData:
     )
 
 
-def _parse_pricing_data_from_html(html_content: str) -> Any:
+def _parse_pricing_data_from_html(html_content: str) -> list[FlightData]:
     result = []
     html = BeautifulSoup(html_content, "html.parser")
 
@@ -122,6 +122,39 @@ def _parse_pricing_data_from_html(html_content: str) -> Any:
         result.append(_parse_single_price(pricing))
 
     return result
+
+def _advanced_search_flight(
+    from_airport_code: str,
+    to_airport_code: str,
+    departure_date: str,
+    is_round_trip: bool = False,
+    return_date: str = None,
+    seat_type: SeatType = SeatType.economy,
+    adult_count: int = 1,
+    child_count: int = 0,
+) -> list[FlightData]:
+    hopegoo_url = _construct_base_url(
+        from_airport_code,
+        to_airport_code,
+        departure_date,
+        is_round_trip,
+        return_date,
+        seat_type,
+        adult_count,
+        child_count,
+    )
+    with sync_playwright() as playwright:
+        pricing_html = _retrieve_pricing_data_core(playwright, hopegoo_url)
+        pricing_data = _parse_pricing_data_from_html(pricing_html)
+        return pricing_data
+
+def _translate_code(code: str) -> str:
+    mapping = {
+        "CTS": "SPK",
+        "KIX": "OSA",
+        "PEK": "BJS",
+    }
+    return mapping.get(code, code)
 
 @tool()
 def advanced_search_flight(
@@ -146,7 +179,7 @@ def advanced_search_flight(
         adult_count (int): Number of adult passengers. Default is 1.
         child_count (int): Number of child passengers. Default is 0.
     """
-    hopegoo_url = _construct_base_url(
+    return _advanced_search_flight(
         from_airport_code,
         to_airport_code,
         departure_date,
@@ -156,12 +189,8 @@ def advanced_search_flight(
         adult_count,
         child_count,
     )
-    with sync_playwright() as playwright:
-        pricing_html = _retrieve_pricing_data_core(playwright, hopegoo_url)
-        pricing_data = _parse_pricing_data_from_html(pricing_html)
-        return pricing_data
+
 
 
 if __name__ == "__main__":
-    # playwright_advanced_search("SIN", "PEK", "2026-01-02")
-    ...
+    _advanced_search_flight("SIN", "SPK", "2025-12-20", True, "2025-12-28", SeatType.economy, 2, 0)
