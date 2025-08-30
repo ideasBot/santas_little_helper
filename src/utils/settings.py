@@ -13,6 +13,8 @@ class Settings(BaseSettings):
     default_lite_model_id: str = "gemini-2.5-flash-lite"
 
     google_api_key: str = None  # Get a free API Key from https://aistudio.google.com
+    
+    serpapi_api_key: str = None
 
 
 settings = Settings()

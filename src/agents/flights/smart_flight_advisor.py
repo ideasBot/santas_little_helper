@@ -1,7 +1,8 @@
 from src.models.model import lite_model, permium_model, model
+from agno.memory.v2.db.sqlite import SqliteMemoryDb
 from agno.agent import Agent
 from agno.memory.v2 import Memory
-from src.tools.flight.flight_advanced import advanced_search_flight
+from src.tools.flight.flight_serp import advanced_search_flight
 from src.tools.holiday import get_holidays
 from agno.tools.calculator import CalculatorTools
 from agno.tools.thinking import ThinkingTools
@@ -10,7 +11,7 @@ import datetime
 
 agent = Agent(
     model=permium_model,
-    memory=Memory(model=lite_model),
+    memory=Memory(model=lite_model, db=SqliteMemoryDb("/tmp/flight_advisor_memory.db")),
     # enable_agentic_memory=True,
     add_history_to_messages=True,
     # search_previous_sessions_history=True,
@@ -61,6 +62,8 @@ When searching for flights, follow this prioritized approach:
 Remember: Your role is to be helpful and thorough while keeping the search process simple and user-friendly.
 """).strip(),
     system_message=dedent(f"""Today is: {datetime.datetime.now().isoformat()}""").strip(),
+    retries=10,
+    exponential_backoff=True,
 )
 
 if __name__ == "__main__":
