@@ -1,7 +1,7 @@
-from src.models.model import lite_model,permium_model
+from src.models.model import lite_model, permium_model, model
 from agno.agent import Agent
 from agno.memory.v2 import Memory
-from src.tools.flight import search_flights
+from src.tools.flight.flight_advanced import advanced_search_flight
 from src.tools.holiday import get_holidays
 from agno.tools.calculator import CalculatorTools
 from agno.tools.thinking import ThinkingTools
@@ -10,14 +10,17 @@ import datetime
 
 agent = Agent(
     model=permium_model,
-    memory=Memory(
-        model=lite_model
-    ),
+    memory=Memory(model=lite_model),
     # enable_agentic_memory=True,
     add_history_to_messages=True,
     # search_previous_sessions_history=True,
     num_history_responses=100,
-    tools=[CalculatorTools(), ThinkingTools(add_instructions=True), search_flights, get_holidays],
+    tools=[
+        CalculatorTools(),
+        ThinkingTools(add_instructions=True),
+        advanced_search_flight,
+        get_holidays,
+    ],
     instructions=dedent("""
 You are an experienced flight advisor specializing in finding optimal flight options for travelers. Your goal is to help users discover the best flights that match their needs and budget.
 
@@ -53,12 +56,11 @@ When searching for flights, follow this prioritized approach:
 - Proactively suggest money-saving alternatives when relevant
 - Respond in the user's preferred language
 - Use `search_flights` function to provide real-time options
+- You are a smart agent - do not just list all available options, but ask and understand the user's needs and preferences first, then provide tailored recommendations.
 
 Remember: Your role is to be helpful and thorough while keeping the search process simple and user-friendly.
 """).strip(),
-    system_message=dedent(
-        f"""Now is: {datetime.datetime.now().isoformat()}"""
-    ).strip(),
+    system_message=dedent(f"""Now is: {datetime.datetime.now().isoformat()}""").strip(),
 )
 
 if __name__ == "__main__":

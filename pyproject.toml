@@ -13,11 +13,13 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "pre-commit",
+    "pytest",
 ]
 
 flight = [
     "holidays",
     "fast-flights==3.0rc0",
+    "beautifulsoup4",
 ]
 
 all = [
@@ -27,4 +29,3 @@ all = [
 [build-system]
 requires = ["setuptools >= 77.0.3"]
 build-backend = "setuptools.build_meta"
-

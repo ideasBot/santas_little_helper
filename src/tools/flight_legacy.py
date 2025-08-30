@@ -13,10 +13,18 @@ from fast_flights.querying import (
 from agno.tools import tool
 from pydantic import BaseModel, Field
 
+
 class FlightQueryInput(BaseModel):
     date: str = Field(..., description="Date in YYYY-MM-DD format, e.g. 2027-01-25")
-    from_airport: str = Field(..., description="IATA code of the departure airport, e.g. HKG for Hong Kong International Airport")
-    to_airport: str = Field(..., description="IATA code of the destination airport, e.g. PEK for Beijing Capital International Airport")
+    from_airport: str = Field(
+        ...,
+        description="IATA code of the departure airport, e.g. HKG for Hong Kong International Airport",
+    )
+    to_airport: str = Field(
+        ...,
+        description="IATA code of the destination airport, e.g. PEK for Beijing Capital International Airport",
+    )
+
 
 def _convert_to_flight_query(flight_query_input: FlightQueryInput) -> FlightQuery:
     return FlightQuery(
@@ -24,6 +32,7 @@ def _convert_to_flight_query(flight_query_input: FlightQueryInput) -> FlightQuer
         from_airport=flight_query_input.from_airport,
         to_airport=flight_query_input.to_airport,
     )
+
 
 @tool()
 def search_flights(
@@ -48,7 +57,8 @@ def search_flights(
     """
     query: Query = create_query(
         flights=[
-            _convert_to_flight_query(flight_query_str) for flight_query_str in flight_queries_list
+            _convert_to_flight_query(flight_query_str)
+            for flight_query_str in flight_queries_list
         ],
         seat=seat_class,
         trip=trip,
