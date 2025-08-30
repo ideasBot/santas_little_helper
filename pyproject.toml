@@ -1,7 +1,7 @@
 [project]
-name = "demo"
+name = "santas_little_helper"
 version = "0.1.0"
-description = "Add your description here"
+description = "The Santa's Little Helper, makes every little helps."
 readme = "README.md"
 requires-python = ">=3.13, <3.14"
 dependencies = [
@@ -16,7 +16,12 @@ dev = [
 ]
 
 flight = [
+    "holidays",
     "fast-flights==3.0rc0",
+]
+
+all = [
+    "santas_little_helper[dev,flight]",
 ]
 
 [build-system]

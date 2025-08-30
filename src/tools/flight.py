@@ -10,12 +10,24 @@ from fast_flights.querying import (
     Passengers,
     Query,
 )
+from agno.tools import tool
+from pydantic import BaseModel, Field
 
+class FlightQueryInput(BaseModel):
+    date: str = Field(..., description="Date in YYYY-MM-DD format, e.g. 2027-01-25")
+    from_airport: str = Field(..., description="IATA code of the departure airport, e.g. HKG for Hong Kong International Airport")
+    to_airport: str = Field(..., description="IATA code of the destination airport, e.g. PEK for Beijing Capital International Airport")
 
+def _convert_to_flight_query(flight_query_input: FlightQueryInput) -> FlightQuery:
+    return FlightQuery(
+        date=flight_query_input.date,
+        from_airport=flight_query_input.from_airport,
+        to_airport=flight_query_input.to_airport,
+    )
+
+@tool()
 def search_flights(
-    from_airport_code: str,
-    to_airport_code: str,
-    date_YYYY_MM_DD: str,
+    flight_queries_list: List[FlightQueryInput],
     seat_class: SeatType = "economy",
     trip: TripType = "one-way",
     adult_count: int = 1,
@@ -23,11 +35,9 @@ def search_flights(
     currency: str = "CNY",
 ) -> list[Flights]:
     """
-    Perform a flight search.
+    Perform a flight search, Google Flights data behind.
     Args:
-        from_airport_code (str): code of the departure airport, e.g. HKG for Hong Kong International Airport.
-        to_airport_code (str): code of the destination airport, e.g. PEK for Beijing Capital International Airport.
-        date_YYYY_MM_DD (str): Date of the flight in YYYY-MM-DD format.
+        flight_queries_list (List[FlightQueryInput]): List of flight queries, each containing date (YYYY-MM-DD), from_airport (str), to_airport (str).
         seat_class (strenum, default economy): Class of the seat, "economy", "premium-economy", "business", "first".
         trip (strenum, default one-way): Type of the trip, "round-trip", "one-way", "multi-city".
         adult_count (int, optional, default 1): Number of adult passengers.
@@ -38,11 +48,7 @@ def search_flights(
     """
     query: Query = create_query(
         flights=[
-            FlightQuery(
-                date=date_YYYY_MM_DD,
-                from_airport=from_airport_code,
-                to_airport=to_airport_code,
-            )
+            _convert_to_flight_query(flight_query_str) for flight_query_str in flight_queries_list
         ],
         seat=seat_class,
         trip=trip,
@@ -56,7 +62,7 @@ def search_flights(
     while tries < max_tries:
         try:
             flights: List[Flights] = get_flights(query)
-        except IndexError:
+        except (IndexError, TypeError):
             tries += 1
             time.sleep(1)
             continue
