@@ -14,7 +14,7 @@ class Settings(BaseSettings):
 
     google_api_key: str = None  # Get a free API Key from https://aistudio.google.com
     
-    serpapi_api_key: str = None
+    serpapi_api_key: str = None # Get a free API Key from https://serpapi.com
 
 
 settings = Settings()
